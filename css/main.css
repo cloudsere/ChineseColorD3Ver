@@ -1,0 +1,8 @@
+html{
+	background-color:#A98175;
+}
+#sidebar{
+	position:fixed;
+	top:0;
+	left:55%;
+}
