@@ -324,6 +324,7 @@ d3.csv("colors.csv",function(error,csv){
 			drawBigArc(cmykArray[i],(r+1.7*r*i));
 		}
 	}
+	
 	initBigArc(colorObject[50]);
 	function arcTween(a) {
 	  var i = d3.interpolate(this._current, a);
