@@ -93,6 +93,7 @@ d3.csv("colors.csv",function(error,csv){
 			   .append("path")
 			   .attr("class","color_" + colorString)
 			   .attr("d",arc)
+			   .style("stroke","none")
 			   .attr("transform","translate(" + (r/3)  + "," + y + ")")
 			   .style("fill",function(d,i){
 			   		if(d.startAngle == 0) return color(0);
@@ -183,12 +184,12 @@ d3.csv("colors.csv",function(error,csv){
 	var sidebar = d3.select("body")
 					.append("div")
 					.attr("id","sidebar")
-					.style("width","20%")
+					.style("width","30%")
 					.style("height","100%")
 					.style("margin-top","4%");
 	var svgSide = d3.select("#sidebar")
 						.append("svg")
-						.attr("width",r*4)
+						.attr("width",r*6)
 						.attr("height", r * 13)
 						.append("g");
 	//画sidebar的矩形
@@ -208,19 +209,22 @@ d3.csv("colors.csv",function(error,csv){
 		var heightBetweenRectRgb = 1.7 * r *4 ;
 		appendRectToSide((heightBetweenRectRgb + (j+1) * r).toString() + "px");
 	}
-	function appendTextToSide(index){
+	function appendTextToSide(index,y1,y2){
 		var smallTextSide = svgSide.append("text")
 						.text(function(){
 						 	return cmykArray[index].toUpperCase();
 						 })
 						 .attr("dy",".35em")
 						 .style("fill","#FFFFFF")
-						 .attr("transform",function(d,i){
-						 	return "translate(40" + "," + (r/4 + 1.7*r*index) + ")"
+						 .attr("transform",function(){
+						 	return "translate("+1.2*r + "," + (y1 + y2*r*index) + ")"
 						 });
 	}
-	for(var i = 0; i < 7; i++){
-		appendTextToSide(i);
+	for(var i = 0; i < 4; i++){
+		appendTextToSide(i,r/4,1.7);
+	}
+	for(var i = 4; i < 7; i++){
+		appendTextToSide(i,3.1*r,1);
 	}
 
 	var bigArc = d3.arc()
@@ -228,21 +232,26 @@ d3.csv("colors.csv",function(error,csv){
 					 .innerRadius(r/2 - 2);
 	function initBigArc(d){
 		//画sidebar的pie
+		d3.selectAll(".textBigArc").remove();
+		d3.selectAll(".arcBig").remove();
+		d3.selectAll(".rgbSideNumber").remove();
+		d3.select("#nameSide").remove();
+		d3.select("#pinyinSide").remove();
 		d3.select("html").style("background-color",d.hexColor);
-		d3.selectAll(".arcBig").style("fill","rgba(255,255,255,0.3)");
 		function drawBigArc(colorString,y){
 			var arcBg = svgSide.selectAll(".bigPie")
-					  .data(function(){
+					   .data(function(){
 						var firstColor = +d["cmykColor"][colorString];
-					    var array = [firstColor, ( 1 - firstColor )];
-						return d3.pie()(array);
+					    var array = [firstColor,( 1 - firstColor )];
+						return pie(array);
 					   })
 					  .enter()
 					  .append("path")
 					  .attr("class","arcBig")
 					  .attr("d",bigArc)
+					  .style("stroke","none")
 					  .each(function(d) { this._current = d; })
-					  .attr("transform","translate(" + 1.3*r + "," + y + ")" )
+					  .attr("transform","translate(" + 1.7*r + "," + y + ")" )
 					  .transition()
 			          .duration(500)
 			          .ease(d3.easeLinear)
@@ -257,6 +266,60 @@ d3.csv("colors.csv",function(error,csv){
 						return "rgba(255,255,255,0.3)";
 					});
 		}
+		function drawTextToBigArc(){
+			var textBigArc = svgSide.selectAll(".textBigArc")
+									.data(d3.map(d["cmykColor"]).values())
+									.enter()
+									.append("text")
+									.text(function(dt,i){
+										return (dt*100).toFixed(0);
+									})
+									.attr("class","textBigArc")
+									.style("font-size","1.5rem")
+									.style("fill","#FFFFFF")
+									.attr("text-anchor","middle")
+									.attr("transform",function(dt,i){
+										return "translate("+1.7*r + "," + (1.7*r*i+1.2*r) +")"
+										});
+			var rgbNumber = svgSide.selectAll(".rgbSideNumber")
+								    .data(d3.map(d["rgbColor"]).values())
+								    .enter()
+									.append("text")
+									.text(function(dt,i){
+										return dt;
+									})
+									.attr("class","rgbSideNumber")
+									.style("font-size","1.3rem")
+									.style("fill","#FFFFFF")
+									.attr("text-anchor","middle")
+									.attr("transform",function(dt,i){
+										return "translate("+1.9*r + "," + (r*i+7.6*r) +")"
+										});
+		}
+		drawTextToBigArc();
+		function drawNameSide(){
+			var nameToSide = svgSide.append("text")
+							.attr("id","nameSide")
+							.text(function(){
+								return d.name;
+							})
+							.attr("writing-mode","tb-rl")
+							.style("fill","#FFFFFF")
+							.style("font-size","4.5rem")
+							.attr("transform","translate(" + 4.2*r + "," + 0.4*r + ")");
+			var pinyinToSide = svgSide.append("text")
+							.attr("id","pinyinSide")
+							.text(function(){
+								return d.pinyin.toUpperCase();
+							})
+							.style("fill","#FFFFFF")
+							.style("font-size","1.7rem")
+							.attr("text-anchor","middle")
+							.attr("transform",function(){
+								return "translate(" + 4.3*r + "," + 4.4*r + ")"
+							});
+		}
+		drawNameSide();
 		for(var i = 0; i < 4; i++){
 			drawBigArc(cmykArray[i],(r+1.7*r*i));
 		}
