@@ -96,13 +96,27 @@ d3.csv("colors.csv",function(error,csv){
 			   .style("stroke","none")
 			   .attr("transform","translate(" + (r/3)  + "," + y + ")")
 			   .style("fill",function(d,i){
-			   		if(d.startAngle == 0) return color(0);
+			   		if(d.startAngle == 0 && d["value"] != 1) return color(0);
 					return color(1);
 				});
 	}
 	for(var i = 0; i < 4; i++){
 		drawArcg(cmykArray[i], 0.6*r*(i+1));
 	}
+	function drawBarChart(colorString,x){
+		var barObject = svg.append("rect")
+						   .attr("class","barchart_" + colorString)
+						   .attr("x",x)
+						   .attr("y",2.9*r)
+						   .attr("width","1px")
+						   .attr("height",function(d){
+						   	return (d["rgbColor"][colorString]/255) * 2.3 * r;
+						   })
+						   .style("fill","#FFFFFF");
+	}
+	drawBarChart("r",r/2.2);
+	drawBarChart("g",r/2.2+r/22 + 1);
+	drawBarChart("b",r/2.2+r/11 + 2);
 	//画文字
 	var colorName = svg.append("text")
 				  .attr("class","colorName")
@@ -257,7 +271,7 @@ d3.csv("colors.csv",function(error,csv){
 			          .ease(d3.easeLinear)
 					  .attrTween("d", arcTween)
 					  .style("fill",function(dt,i){
-				   		if(dt.startAngle == 0){
+				   		if(dt.startAngle == 0 && dt["value"] != 1){
 				   			if(colorString === "c") return "#0093D3";
 				   			if(colorString === "m") return "#CC006B";
 				   			if(colorString === "y") return "#FFF10C";
@@ -313,10 +327,10 @@ d3.csv("colors.csv",function(error,csv){
 								return d.pinyin.toUpperCase();
 							})
 							.style("fill","#FFFFFF")
-							.style("font-size","1.7rem")
+							.style("font-size","1.1rem")
 							.attr("text-anchor","middle")
 							.attr("transform",function(){
-								return "translate(" + 4.3*r + "," + 4.4*r + ")"
+								return "translate(" + 4.3*r + "," + (r + nameToSide.node().getBBox().height) + ")"
 							});
 		}
 		drawNameSide();
