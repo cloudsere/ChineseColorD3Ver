@@ -251,7 +251,12 @@ d3.csv("colors.csv",function(error,csv){
 		d3.selectAll(".rgbSideNumber").remove();
 		d3.select("#nameSide").remove();
 		d3.select("#pinyinSide").remove();
-		d3.select("html").style("background-color",d.hexColor);
+		d3.select("html").transition()
+					     .delay(300)
+					     .ease(d3.easeCubicOut)
+						 .styleTween("background-color", function() {
+						   return d3.interpolateRgb(d3.select("html").style("background-color"), d.hexColor);
+						 });
 		function drawBigArc(colorString,y){
 			var arcBg = svgSide.selectAll(".bigPie")
 					   .data(function(){
@@ -321,6 +326,7 @@ d3.csv("colors.csv",function(error,csv){
 							.style("fill","#FFFFFF")
 							.style("font-size","4.5rem")
 							.attr("transform","translate(" + 4.2*r + "," + 0.4*r + ")");
+
 			var pinyinToSide = svgSide.append("text")
 							.attr("id","pinyinSide")
 							.text(function(){
